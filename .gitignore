@@ -1,0 +1,65 @@
+# =========================
+# Delphi / RAD Studio
+# =========================
+
+# Compilação
+*.exe
+*.dll
+*.bpl
+*.dcp
+*.map
+*.rsm
+*.tds
+*.drc
+*.ocx
+*.so
+*.apk
+*.aab
+*.ipa
+
+# Unidades compiladas
+*.dcu
+*.dcuil
+*.compiled
+
+# =========================
+# Cache e arquivos temporários
+# =========================
+*.~*
+*.tmp
+*.log
+*.bak
+
+# Diretórios gerados
+__history/
+__recovery/
+Win32/
+Win64/
+Android/
+iOS/
+OSX64/
+Linux64/
+LinuxARM64/
+
+# =========================
+# Configurações locais do IDE
+# =========================
+*.local
+*.identcache
+*.stat
+*.proj.local
+*.groupproj.local
+*.skincfg
+
+# =========================
+# Backup do editor
+# =========================
+*.~pas
+*.~dfm
+*.~fmx
+
+# =========================
+# Deployment
+# =========================
+*.deployproj
+*.deployproj.local
