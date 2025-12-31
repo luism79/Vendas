@@ -11,7 +11,7 @@ type
     FIdCarro: Integer;
   public
     /// <summary>
-    /// Identificador único do cliente no banco de dados
+    /// Identificador único da venda no banco de dados
     /// </summary>
     property Id: Integer read FId write FId;
 

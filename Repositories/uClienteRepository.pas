@@ -9,7 +9,6 @@ type
   TClienteRepository = class(TCustomRepository, IClienteRepository)
   private
   public
-
     function ClienteByCPF(const ACPF: string): TCliente;
     function ExecutarSQL(const ASQL: string; AParams: array of Variant): TFDQuery;
     function Exists(const ACPF: string): Boolean;

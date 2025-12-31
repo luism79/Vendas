@@ -3,17 +3,23 @@ unit uClienteService;
 interface
 
 uses
-  uCustomService, uIClienteRepository, uCliente, uIConnectionTransaction;
+  FireDAC.Comp.Client, uCustomService, uIClienteRepository, uCliente, uIConnectionTransaction, uIClienteService;
 
 type
-  TClienteService = class(TCustomService)
+  TClienteService = class(TCustomService, IClienteService)
   private
     FClienteRepository: IClienteRepository;
+
+    procedure SetRepository(AClienteRepository: IClienteRepository);
   public
     constructor Create(AConnectionTransaction: IConnectionTransaction;
       AClienteRepository: IClienteRepository); reintroduce;
 
+    function ClienteByCPF(const ACPF: string): TCliente;
+    function ExecutarSQL(const ASQL: string; AParams: array of Variant): TFDQuery;
+    function Exists(const ACPF: string): Boolean;
     procedure InserirDadosBD(ACliente: TCliente);
+    function LocateById(const AId: Integer): Boolean;
   end;
 
 implementation
@@ -23,11 +29,26 @@ uses
 
 { TClienteService }
 
+function TClienteService.ClienteByCPF(const ACPF: string): TCliente;
+begin
+  Result := FClienteRepository.ClienteByCPF(ACPF);
+end;
+
 constructor TClienteService.Create(AConnectionTransaction: IConnectionTransaction;
   AClienteRepository: IClienteRepository);
 begin
   inherited Create(AConnectionTransaction);
-  FClienteRepository := AClienteRepository;
+  SetRepository(AClienteRepository);
+end;
+
+function TClienteService.ExecutarSQL(const ASQL: string; AParams: array of Variant): TFDQuery;
+begin
+  Result := FClienteRepository.ExecutarSQL(ASQL, AParams);
+end;
+
+function TClienteService.Exists(const ACPF: string): Boolean;
+begin
+  Result := FClienteRepository.Exists(ACPF);
 end;
 
 procedure TClienteService.InserirDadosBD(ACliente: TCliente);
@@ -39,7 +60,7 @@ begin
 
   sCPF := TFormatarCPF.RemoverFormatacao(ACliente.CPF);
 
-  if FClienteRepository.Exists(sCPF) then
+  if Exists(sCPF) then
     raise Exception.CreateFmt('Já existe o cliente com o CPF ''%s'' cadastrado.', [ACliente.CPF]);
 
   ConnectionTransaction.StartTransaction;
@@ -58,6 +79,19 @@ begin
       raise;
     end;
   end;
+end;
+
+function TClienteService.LocateById(const AId: Integer): Boolean;
+begin
+  Result := FClienteRepository.LocateById(AId);
+end;
+
+procedure TClienteService.SetRepository(AClienteRepository: IClienteRepository);
+begin
+  if not Assigned(AClienteRepository) then
+    raise EArgumentException.Create('O argumento do repositório ''IClienteRepository'' não foi informado.');
+
+  FClienteRepository := AClienteRepository;
 end;
 
 end.

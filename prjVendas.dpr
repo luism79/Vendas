@@ -20,13 +20,16 @@ uses
   uConnectionTransaction in 'Connection\uConnectionTransaction.pas',
   uClienteService in 'Services\uClienteService.pas',
   uCarroService in 'Services\uCarroService.pas',
-  uCustomService in 'Services\uCustomService.pas',
   uFormatarCPF in 'Utils\uFormatarCPF.pas',
   uVenda in 'Models\uVenda.pas',
   uIVendaRepository in 'Repositories\uIVendaRepository.pas',
   uVendaRepository in 'Repositories\uVendaRepository.pas',
   uVendaService in 'Services\uVendaService.pas',
-  uIRepository in 'Repositories\uIRepository.pas';
+  uIRepository in 'Repositories\uIRepository.pas',
+  uICarroService in 'Services\uICarroService.pas',
+  uCustomService in 'Services\uCustomService.pas',
+  uIClienteService in 'Services\uIClienteService.pas',
+  uIVendaService in 'Services\uIVendaService.pas';
 
 {$R *.res}
 

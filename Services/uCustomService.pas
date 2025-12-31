@@ -6,7 +6,7 @@ uses
   uIConnectionTransaction;
 
 type
-  TCustomService = class
+  TCustomService = class(TInterfacedObject)
   private
     FConnectionTransaction: IConnectionTransaction;
   public

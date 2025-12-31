@@ -1,14 +1,15 @@
-unit uIClienteRepository;
+unit uIClienteService;
 
 interface
 
 uses
-  uIRepository, uCliente;
+  FireDAC.Comp.Client, uCliente;
 
 type
-  IClienteRepository = interface(IRepository)
-    ['{48CA5AA0-36E7-4E4F-B92F-6646FF3E2C33}']
+  IClienteService = interface
+    ['{E15AFB4C-153A-4087-9BF1-3D241CF4A294}']
     function ClienteByCPF(const ACPF: string): TCliente;
+    function ExecutarSQL(const ASQL: string; AParams: array of Variant): TFDQuery;
     function Exists(const ACPF: string): Boolean;
     procedure InserirDadosBD(ACliente: TCliente);
     function LocateById(const AId: Integer): Boolean;

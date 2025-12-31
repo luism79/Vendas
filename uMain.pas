@@ -5,8 +5,8 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Comp.Client, uConnectionTransaction, Vcl.StdCtrls,
-  Vcl.Buttons, uCliente, uCarro, uIClienteRepository, uClienteRepository, uICarroRepository,
-  uCarroRepository, uVendaRepository, uIVendaRepository, uIConnectionTransaction;
+  Vcl.Buttons, uCliente, uCarro, uIClienteRepository, uICarroRepository,  uVendaRepository,
+  uIVendaRepository, uIConnectionTransaction, uICarroService, uIClienteService, uIVendaService;
 
 type
   TfrmMain = class(TForm)
@@ -22,16 +22,16 @@ type
     { Private declarations }
     FConn: TFDCustomConnection;
     FConTransaction: IConnectionTransaction;
-    FCarroRepository: ICarroRepository;
-    FClienteRepository: IClienteRepository;
-    FVendaRepository: IVendaRepository;
+    FCarroService: ICarroService;
+    FClienteService: IClienteService;
+    FVendaService: IVendaService;
 
     procedure AddCarroBD(const AModelo: string);
     procedure AddClienteBD(const ANome, ACPF: string);
     procedure AddVenda(const ACPF, AModelo: string);
     procedure AddVendaBD(ACliente: TCliente; ACarro: TCarro);
     procedure CriarConexaoBD;
-    procedure CriarRepositorios;
+    procedure CriarServicos;
     function GetCarro(const AModelo: string): TCarro;
     function GetCliente(const ACPF: string): TCliente;
   public
@@ -44,8 +44,8 @@ var
 implementation
 
 uses
-  uConexaoFactory, uConexaoConfigBuilder, uClienteService, uCarroService, uVenda,
-  uVendaService, uFormatarCPF;
+  uConexaoFactory, uConexaoConfigBuilder, uClienteService, uVenda, uVendaService,
+  uFormatarCPF, uCarroService, uClienteRepository, uCarroRepository;
 
 {$R *.dfm}
 
@@ -54,17 +54,14 @@ uses
 procedure TfrmMain.AddCarroBD(const AModelo: string);
 var
   lCarro: TCarro;
-  lService: TCarroService;
 begin
   lCarro := TCarro.Create;
-  lService := TCarroService.Create(FConTransaction, FCarroRepository);
   try
     lCarro.Modelo := AModelo;
     lCarro.DataCadastro := Now;
 
-    lService.InserirDadosBD(lCarro);
+    FCarroService.InserirDadosBD(lCarro);
   finally
-    FreeAndNil(lService);
     FreeAndNil(lCarro);
   end;
 end;
@@ -72,18 +69,15 @@ end;
 procedure TfrmMain.AddClienteBD(const ANome, ACPF: string);
 var
   lCliente: TCliente;
-  lService: TClienteService;
 begin
   lCliente := TCliente.Create;
-  lService := TClienteService.Create(FConTransaction, FClienteRepository);
   try
     lCliente.Nome := ANome;
     lCliente.CPF := ACPF;
     lCliente.DataCadastro := Now;
 
-    lService.InserirDadosBD(lCliente);
+    FClienteService.InserirDadosBD(lCliente);
   finally
-    FreeAndNil(lService);
     FreeAndNil(lCliente);
   end;
 end;
@@ -114,18 +108,15 @@ end;
 procedure TfrmMain.AddVendaBD(ACliente: TCliente; ACarro: TCarro);
 var
   lVenda: TVenda;
-  lServive: TVendaService;
 begin
   lVenda := TVenda.Create;
-  lServive := TVendaService.Create(FConTransaction,
-    FVendaRepository, FClienteRepository, FCarroRepository);
   try
     lVenda.IdCliente := ACliente.Id;
     lVenda.IdCarro := ACarro.Id;
-    
-    lServive.InserirDadosBD(lVenda);
+    lVenda.DataVenda := Now;
+
+    FVendaService.InserirDadosBD(lVenda);
   finally
-    FreeAndNil(lServive);
     FreeAndNil(lVenda);
   end;
 end;
@@ -182,11 +173,18 @@ begin
   FConTransaction := TConnectionTransaction.Create(FConn);
 end;
 
-procedure TfrmMain.CriarRepositorios;
+procedure TfrmMain.CriarServicos;
 begin
-  FCarroRepository := TCarroRepository.Create(FConn);
-  FClienteRepository := TClienteRepository.Create(FConn);
-  FVendaRepository := TVendaRepository.Create(FConn);
+  FCarroService := TCarroService.Create(FConTransaction,
+    TCarroRepository.Create(FConn));
+
+  FClienteService := TClienteService.Create(FConTransaction,
+    TClienteRepository.Create(FConn));
+
+  FVendaService := TVendaService.Create(FConTransaction,
+    TVendaRepository.Create(FConn),
+    FClienteService,
+    FCarroService);
 end;
 
 procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -197,21 +195,21 @@ end;
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
   CriarConexaoBD;
-  CriarRepositorios;
+  CriarServicos;
 end;
 
 function TfrmMain.GetCarro(const AModelo: string): TCarro;
 begin
   Result := nil;
-  if Assigned(FCarroRepository) then
-    Result := FCarroRepository.CarroByModelo(AModelo);
+  if Assigned(FCarroService) then
+    Result := FCarroService.CarroByModelo(AModelo);
 end;
 
 function TfrmMain.GetCliente(const ACPF: string): TCliente;
 begin
   Result := nil;
-  if Assigned(FClienteRepository) then
-    Result := FClienteRepository.ClienteByCPF(TFormatarCPF.RemoverFormatacao(ACPF));
+  if Assigned(FClienteService) then
+    Result := FClienteService.ClienteByCPF(TFormatarCPF.RemoverFormatacao(ACPF));
 end;
 
 end.

@@ -10,7 +10,7 @@ type
     FDataCadastro: TDateTime;
   public
     /// <summary>
-    /// Identificador único do cliente no banco de dados
+    /// Identificador único do carro no banco de dados
     /// </summary>
     property Id: Integer read FId write FId;
 
